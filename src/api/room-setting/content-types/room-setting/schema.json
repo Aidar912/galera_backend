@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "room_settings",
+  "info": {
+    "singularName": "room-setting",
+    "pluralName": "room-settings",
+    "displayName": "room_setting"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "room": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::room.room"
+    }
+  }
+}
