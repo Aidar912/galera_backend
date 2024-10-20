@@ -4,7 +4,8 @@
   "info": {
     "singularName": "room-setting",
     "pluralName": "room-settings",
-    "displayName": "room_setting"
+    "displayName": "room_setting",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -15,6 +16,18 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::room.room"
+    },
+    "close": {
+      "type": "boolean"
+    },
+    "period": {
+      "type": "integer"
+    },
+    "password": {
+      "type": "password"
+    },
+    "isGlobal": {
+      "type": "boolean"
     }
   }
 }

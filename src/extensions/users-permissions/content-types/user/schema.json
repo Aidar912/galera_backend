@@ -88,6 +88,12 @@
       "relation": "oneToMany",
       "target": "api::report.report",
       "mappedBy": "user"
+    },
+    "streaks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::streak.streak",
+      "mappedBy": "user"
     }
   }
 }

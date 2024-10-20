@@ -4,7 +4,8 @@
   "info": {
     "singularName": "post",
     "pluralName": "posts",
-    "displayName": "Post"
+    "displayName": "Post",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -21,14 +22,15 @@
       "type": "text"
     },
     "media": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
       "allowedTypes": [
         "images",
         "files",
         "videos",
         "audios"
-      ],
-      "type": "media",
-      "multiple": true
+      ]
     },
     "approved": {
       "type": "boolean",
@@ -45,6 +47,18 @@
       "relation": "oneToOne",
       "target": "api::report.report",
       "mappedBy": "post"
+    },
+    "streaks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::streak.streak",
+      "mappedBy": "post"
+    },
+    "room": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::room.room",
+      "inversedBy": "posts"
     }
   }
 }

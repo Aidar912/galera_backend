@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "streaks",
+  "info": {
+    "singularName": "streak",
+    "pluralName": "streaks",
+    "displayName": "Streak"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "streaks"
+    },
+    "post": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::post.post",
+      "inversedBy": "streaks"
+    },
+    "accomplished": {
+      "type": "boolean"
+    }
+  }
+}
