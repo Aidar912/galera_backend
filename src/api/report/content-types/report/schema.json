@@ -4,7 +4,8 @@
   "info": {
     "singularName": "report",
     "pluralName": "reports",
-    "displayName": "Report"
+    "displayName": "Report",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -28,6 +29,9 @@
       "relation": "oneToMany",
       "target": "api::vote.vote",
       "mappedBy": "report"
+    },
+    "isClosed": {
+      "type": "boolean"
     }
   }
 }

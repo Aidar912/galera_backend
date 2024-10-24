@@ -48,17 +48,17 @@
       "target": "api::report.report",
       "mappedBy": "post"
     },
-    "streaks": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::streak.streak",
-      "mappedBy": "post"
-    },
     "room": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::room.room",
       "inversedBy": "posts"
+    },
+    "streak": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::streak.streak",
+      "inversedBy": "post"
     }
   }
 }

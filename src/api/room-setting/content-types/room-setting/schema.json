@@ -15,7 +15,8 @@
     "room": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::room.room"
+      "target": "api::room.room",
+      "inversedBy": "room_setting"
     },
     "close": {
       "type": "boolean"
