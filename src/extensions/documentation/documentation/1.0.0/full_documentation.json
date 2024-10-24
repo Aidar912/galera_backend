@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2024-10-24T18:02:55.977Z"
+    "x-generation-date": "2024-10-24T18:24:01.874Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -12814,7 +12814,183 @@
       }
     }
   },
+
   "paths": {
+    "/rooms/{roomId}/users": {
+      "get": {
+        "tags": ["Room"],
+        "summary": "Find users in a room",
+        "description": "This endpoint returns a list of users that are in the specified room.",
+        "operationId": "findUsersByRoom",
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "description": "The ID of the room to get users for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Room"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Room not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms/top-rooms": {
+      "get": {
+        "tags": ["Room"],
+        "summary": "Get top rooms",
+        "description": "This endpoint returns a list of the top rooms.",
+        "operationId": "getTopRooms",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Room"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/votes/findByReport/{reportId}": {
+      "get": {
+        "tags": ["Vote"],
+        "summary": "Count votes by report ID",
+        "description": "This endpoint returns the count of votes for a specific report.",
+        "operationId": "getVotesByReportId",
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "description": "The ID of the report to count votes for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "voteCount": {
+                      "type": "integer",
+                      "description": "Number of votes for the given report ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
     "/comments": {
       "get": {
         "responses": {
