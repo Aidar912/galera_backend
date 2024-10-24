@@ -9,6 +9,14 @@ module.exports = {
             },
         },
         {
+            method: "POST",
+            path: "/rooms/leave",
+            handler: "room.leaveRoom",
+            config: {
+                auth: false, // Set to true if you need authentication
+            },
+        },
+        {
             method: 'GET',
             path: '/rooms/:roomId/users',
             handler: 'room.findUsersByRoom',

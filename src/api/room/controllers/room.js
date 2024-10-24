@@ -10,13 +10,11 @@ module.exports = createCoreController('api::room.room', ({ strapi }) => ({
     // Extending the default controller
     async enterRoom(ctx) {
         try {
-            const { roomId } = ctx.request.body;
+            const { roomId, userId } = ctx.request.body;
 
-            // Get the authenticated user's ID
-            const userId = ctx.state.user?.id;
-
+            // Ensure roomId and userId are provided
             if (!roomId || !userId) {
-                return ctx.badRequest("roomId is required, and the user must be authenticated");
+                return ctx.badRequest("roomId and userId are required");
             }
 
             // Fetch the room by ID, including the users
@@ -40,18 +38,77 @@ module.exports = createCoreController('api::room.room', ({ strapi }) => ({
                 roomId,
                 {
                     data: {
-                        users: [...room.users.map(user => user.id), userId],
+                        users: {
+                            connect: [{ id: userId }],
+                        },
                     },
                 }
             );
 
             ctx.send(updatedRoom);
         } catch (error) {
+            strapi.log.error("Error in enterRoom:", error);
             ctx.internalServerError("An error occurred while entering the room");
+        }
+    }
+    ,
+
+    async leaveRoom(ctx) {
+        try {
+            // Get roomId and userId from the request body
+            const { roomId, userId } = ctx.request.body;
+
+            // Log the roomId and userId for debugging
+            console.info('roomId:', roomId, 'userId:', userId);
+
+            // Validate that both roomId and userId are provided
+            if (!roomId || !userId) {
+                return ctx.badRequest('Both roomId and userId are required');
+            }
+
+            // Fetch the room by ID and populate the users
+            const room = await strapi.entityService.findOne('api::room.room', roomId, {
+                populate: { users: true },
+            });
+
+            // Log the room data for debugging
+            console.info('Fetched room:', room);
+            console.info('Users in the room:', room.users);
+
+            // If the room is not found, return a 404 error
+            if (!room) {
+                return ctx.notFound('Room not found');
+            }
+
+            // Check if the user is in the room (convert IDs to number for consistency)
+            const numericUserId = Number(userId);
+            const isUserInRoom = room.users && room.users.some(user => user.id === numericUserId);
+
+            if (!isUserInRoom) {
+                return ctx.badRequest('User is not in the room');
+            }
+
+            // Update the room by removing the user
+            const updatedUsers = room.users.filter(user => user.id !== numericUserId);
+            const updatedRoom = await strapi.entityService.update(
+                'api::room.room',
+                roomId,
+                {
+                    data: {
+                        users: updatedUsers.map(user => user.id),
+                    },
+                }
+            );
+
+            // Send the updated room details as the response
+            ctx.send(updatedRoom);
+        } catch (error) {
+            // Log the error for debugging and return an internal server error
+            console.error(error);
+            ctx.internalServerError('An error occurred while leaving the room');
         }
     },
 
-    async leaveRoom(ctx) {},
 
     async topRooms(ctx) {
         try {

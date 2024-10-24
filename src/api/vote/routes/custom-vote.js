@@ -5,7 +5,8 @@ module.exports = {
             path: '/votes/findByReport/:reportId',
             handler: "vote.countVotesByReportId",
             config: {
-                policies : ["global::isAuthenticated"]
+                // policies : ["global::isAuthenticated"]
+                auth : false
             }
         },
 
