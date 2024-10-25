@@ -7,7 +7,107 @@
 const {createCoreController} = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::room.room', ({strapi}) => ({
-    // Extending the default controller
+    async update(ctx) {
+        try {
+            const {id} = ctx.params;
+            const data = ctx.request.body;
+            const {files} = ctx.request;
+
+            let imageId = null;
+            if (files && files.image) {
+                const uploadedImage = await strapi.plugins['upload'].services.upload.upload({
+                    files: files.image,
+                    data: {},
+                });
+
+                if (uploadedImage && uploadedImage.length > 0) {
+                    imageId = uploadedImage[0].id;
+                }
+            }
+
+            const updatedRoom = await strapi.entityService.update('api::room.room', id, {
+                data: {
+                    ...data,
+                    image: imageId ? imageId : data.image,
+                    updatedAt: new Date(),
+                },
+            });
+
+            return ctx.send({data: updatedRoom});
+        } catch (error) {
+            console.error('Error updating room with image:', error);
+            ctx.throw(400, 'Error updating room with image');
+        }
+    },
+
+    async create(ctx) {
+        try {
+            const data = ctx.request.body;
+            const {files} = ctx.request;
+
+
+            let imageId = null;
+            if (files && files.image) {
+                const uploadedImage = await strapi.plugins['upload'].services.upload.upload({
+                    files: files.image,
+                    data: {},
+                });
+
+                if (uploadedImage && uploadedImage.length > 0) {
+                    imageId = uploadedImage[0].id;
+                }
+            }
+
+            const newRoom = await strapi.entityService.create('api::room.room', {
+                data: {
+                    ...data,
+                    image: imageId ? imageId : null,
+                    publishedAt: new Date()
+                },
+            });
+
+            return ctx.send({data: newRoom});
+        } catch (error) {
+            // Обработка ошибок
+            console.error('Error creating room with image:', error);
+            ctx.throw(400, 'Error creating room with image');
+        }
+    },
+
+    async find(ctx) {
+        ctx.query = {...ctx.query, populate: 'image'};
+
+        const {data, meta} = await super.find(ctx);
+
+        const baseUrl = process.env.BASE_URL;
+
+        const modifiedData = data.map((item) => ({
+            ...item.attributes,
+            image: item.attributes.image?.data?.attributes?.url
+                ? `${baseUrl}${item.attributes.image.data.attributes.url}`
+                : null,
+        }));
+
+        return {data: modifiedData, meta};
+    },
+
+    async findOne(ctx) {
+        ctx.query = {...ctx.query, populate: 'image'};
+
+        const {data} = await super.findOne(ctx);
+
+        const baseUrl = process.env.BASE_URL;
+
+        const modifiedData = {
+            ...data.attributes,
+            image: data.attributes.image?.data?.attributes?.url
+                ? `${baseUrl}${data.attributes.image.data.attributes.url}`
+                : null,
+        };
+
+        return {data: modifiedData};
+    },
+
     async enterRoom(ctx) {
         try {
             const {roomId, password} = ctx.request.body;
@@ -81,23 +181,17 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
 
     async leaveRoom(ctx) {
         try {
-            // Get roomId and userId from the request body
             const {roomId} = ctx.request.body;
-            const {id: userId, password} = ctx.state.user;
+            const {id: userId} = ctx.state.user;
 
-            // Validate that both roomId and userId are provided
             if (!roomId || !userId) {
                 return ctx.badRequest('Both roomId and userId are required');
             }
 
-            // Fetch the room by ID and populate the users
             const room = await strapi.entityService.findOne('api::room.room', roomId, {
                 populate: {users: true},
             });
 
-            // Log the room data for debugging
-
-            // If the room is not found, return a 404 error
             if (!room) {
                 return ctx.notFound('Room not found');
             }

@@ -950,6 +950,7 @@ export interface ApiRoomRoom extends Schema.CollectionType {
     singularName: 'room';
     pluralName: 'rooms';
     displayName: 'Room';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -973,6 +974,7 @@ export interface ApiRoomRoom extends Schema.CollectionType {
       'oneToOne',
       'api::room-setting.room-setting'
     >;
+    image: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
