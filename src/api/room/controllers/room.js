@@ -283,12 +283,12 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
             // Modify the data structure to handle the image URL correctly
             const modifiedRooms = paginatedRooms.map((room) => ({
                 ...room,
+                close:room.room_setting.close,
                 image: room.image?.url
                     ? `${baseUrl}${room.image.url}`
                     : null,
             }));
 
-            // Send the paginated and sorted result
             ctx.send({
                 data: modifiedRooms,
                 pagination: {
@@ -340,6 +340,7 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
             // Modify the data structure to handle the image URL correctly
             const modifiedRooms = paginatedRooms.map((room) => ({
                 ...room,
+                close:room.room_setting.close,
                 image: room.image?.url
                     ? `${baseUrl}${room.image.url}`
                     : null,
