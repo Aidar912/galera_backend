@@ -239,7 +239,7 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
     async findUserRooms(ctx) {
         try {
 
-            const {id:userId} = ctx.state.user
+            const {id: userId} = ctx.state.user
             // Extract and validate pagination parameters from the query string
             const page = Math.max(1, parseInt(ctx.query.page, 10) || 1);
             const pageSize = Math.max(1, parseInt(ctx.query.pageSize, 10) || 10);
@@ -283,7 +283,7 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
             // Modify the data structure to handle the image URL correctly
             const modifiedRooms = paginatedRooms.map((room) => ({
                 ...room,
-                close:room.room_setting.close,
+                close: room.room_setting.close,
                 image: room.image?.url
                     ? `${baseUrl}${room.image.url}`
                     : null,
@@ -306,12 +306,22 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
 
     async topRooms(ctx) {
         try {
+            const {id: userId} = ctx.state.user
+
+
             // Extract and validate pagination parameters from the query string
             const page = Math.max(1, parseInt(ctx.query.page, 10) || 1);
             const pageSize = Math.max(1, parseInt(ctx.query.pageSize, 10) || 10);
 
             // Fetch all rooms and populate specific fields, including image
             const rooms = await strapi.entityService.findMany("api::room.room", {
+                filters: {
+                    users: {
+                        id: {
+                            $not: userId,
+                        },
+                    },
+                },
                 populate: {
                     users: {
                         count: true, // Only get the count of users
@@ -340,7 +350,7 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
             // Modify the data structure to handle the image URL correctly
             const modifiedRooms = paginatedRooms.map((room) => ({
                 ...room,
-                close:room.room_setting.close,
+                close: room.room_setting.close,
                 image: room.image?.url
                     ? `${baseUrl}${room.image.url}`
                     : null,
