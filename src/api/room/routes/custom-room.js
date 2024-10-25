@@ -18,6 +18,11 @@ module.exports = {
         },
         {
             method: "GET",
+            path: "/find-user-room",
+            handler: "room.findUserRooms"
+        },
+        {
+            method: "GET",
             path : "/rooms/top-rooms",
             handler: "room.topRooms",
 

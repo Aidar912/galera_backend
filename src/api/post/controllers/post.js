@@ -47,27 +47,37 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
     },
 
     async find(ctx) {
-        ctx.query = {...ctx.query, populate: ['media', 'user']};
+        ctx.query = {...ctx.query, populate: {media: true, user: true}};
 
         const {data, meta} = await super.find(ctx);
 
         const baseUrl = process.env.BASE_URL;
 
+        console.log(data)
         const modifiedData = data.map((item) => ({
             ...item.attributes,
             media: item.attributes.media?.data?.map(mediaItem =>
                 mediaItem.attributes.url ? `${baseUrl}${mediaItem.attributes.url}` : null
             ) || [],
-            user: item.attributes.user, // Include user data
+            user: data.attributes.user ? data.attributes.user.data?.attributes : null,
         }));
 
         return {data: modifiedData, meta};
     },
 
     async findOne(ctx) {
-        ctx.query = {...ctx.query, populate: ['media', 'user']};
+        ctx.query = {
+            ...ctx.query,
+            populate: {
+                media: true,
+                user: true,
+            }
+        };
+
 
         const {data} = await super.findOne(ctx);
+
+        console.log('Raw Data:', data);
 
         const baseUrl = process.env.BASE_URL;
 
@@ -76,13 +86,13 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
             media: data.attributes.media?.data?.map(mediaItem =>
                 mediaItem.attributes.url ? `${baseUrl}${mediaItem.attributes.url}` : null
             ) || [],
-            user: data.attributes.user, // Include user data
+            user: data.attributes.user ? data.attributes.user.data?.attributes : null,
         };
 
         return {data: modifiedData};
     },
 
-    
+
     async update(ctx) {
         try {
             const {id} = ctx.params;

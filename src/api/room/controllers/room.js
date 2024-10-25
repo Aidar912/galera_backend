@@ -236,6 +236,73 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
         }
     },
 
+    async findUserRooms(ctx) {
+        try {
+
+            const {id:userId} = ctx.state.user
+            // Extract and validate pagination parameters from the query string
+            const page = Math.max(1, parseInt(ctx.query.page, 10) || 1);
+            const pageSize = Math.max(1, parseInt(ctx.query.pageSize, 10) || 10);
+
+            // Fetch all rooms and populate specific fields, including image
+            const rooms = await strapi.entityService.findMany("api::room.room", {
+                filters: {
+                    users: {
+                        id: userId, // Filter rooms to include only those with the current user
+                    },
+                },
+                populate: {
+                    users: {
+                        count: true, // Only get the count of users
+                    },
+                    room_setting: {
+                        fields: ["close", "period", "isGlobal"], // Only fetch specific fields
+                    },
+                    image: true, // Ensure the image field is populated
+                },
+                pagination: {
+                    page,
+                    pageSize,
+                },
+            });
+
+            if (!rooms) {
+                return ctx.notFound("No rooms found");
+            }
+
+            // Sort rooms by number of users in descending order
+            const sortedRooms = rooms.sort((a, b) => (b.users.count || 0) - (a.users.count || 0));
+
+            // Apply pagination
+            const startIndex = (page - 1) * pageSize;
+            const paginatedRooms = sortedRooms.slice(startIndex, startIndex + pageSize);
+
+            // Construct the image URL
+            const baseUrl = process.env.BASE_URL;
+
+            // Modify the data structure to handle the image URL correctly
+            const modifiedRooms = paginatedRooms.map((room) => ({
+                ...room,
+                image: room.image?.url
+                    ? `${baseUrl}${room.image.url}`
+                    : null,
+            }));
+
+            // Send the paginated and sorted result
+            ctx.send({
+                data: modifiedRooms,
+                pagination: {
+                    page,
+                    pageSize,
+                    total: sortedRooms.length,
+                    totalPages: Math.ceil(sortedRooms.length / pageSize),
+                },
+            });
+        } catch (error) {
+            console.error(error); // Log error for debugging
+            ctx.internalServerError("An error occurred while fetching top rooms");
+        }
+    },
 
     async topRooms(ctx) {
         try {
