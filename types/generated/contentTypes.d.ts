@@ -694,7 +694,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     displayName: 'User';
   };
   options: {
-    timestamps: true;
+    draftAndPublish: false;
   };
   attributes: {
     username: Attribute.String &
@@ -748,6 +748,9 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::streak.streak'
     >;
+    image: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    birthday: Attribute.Date & Attribute.DefaultTo<'2024-09-30'>;
+    phone: Attribute.BigInteger & Attribute.DefaultTo<'0'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

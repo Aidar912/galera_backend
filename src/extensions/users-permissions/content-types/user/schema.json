@@ -9,7 +9,7 @@
     "displayName": "User"
   },
   "options": {
-    "timestamps": true
+    "draftAndPublish": false
   },
   "attributes": {
     "username": {
@@ -94,6 +94,25 @@
       "relation": "oneToMany",
       "target": "api::streak.streak",
       "mappedBy": "user"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "birthday": {
+      "type": "date",
+      "default": "2024-09-30"
+    },
+    "phone": {
+      "type": "biginteger",
+      "default": "0"
     }
   }
 }

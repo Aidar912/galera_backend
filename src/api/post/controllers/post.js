@@ -47,49 +47,84 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
     },
 
     async find(ctx) {
-        ctx.query = {...ctx.query, populate: {media: true, user: true}};
+        try {
+            const page = Math.max(1, parseInt(ctx.query.page, 10) || 1);
+            const pageSize = Math.max(1, parseInt(ctx.query.pageSize, 10) || 10);
 
-        const {data, meta} = await super.find(ctx);
+            const {results, pagination} = await strapi.entityService.findPage("api::post.post", {
+                filters: ctx.query.filters || {}, // Apply any existing filters
+                populate: {
+                    media: true, // Populate media field
+                    user: { // Populate user and their image if exists
+                        populate: {
+                            image: true
+                        }
+                    },
+                },
+                pagination: {
+                    page,
+                    pageSize,
+                },
+            });
 
-        const baseUrl = process.env.BASE_URL;
+            const baseUrl = process.env.BASE_URL;
 
-        console.log(data)
-        const modifiedData = data.map((item) => ({
-            ...item.attributes,
-            media: item.attributes.media?.data?.map(mediaItem =>
-                mediaItem.attributes.url ? `${baseUrl}${mediaItem.attributes.url}` : null
-            ) || [],
-            user: data.attributes.user ? data.attributes.user.data?.attributes : null,
-        }));
+            // Modify the data to include full URLs for media and extract user information
+            const modifiedData = results.map((item) => ({
+                ...item,
+                media: item.media?.map(mediaItem =>
+                    mediaItem.url ? `${baseUrl}${mediaItem.url}` : null
+                ) || [],
+                user: item.user ? {
+                    username: item.user.username,
+                    image: item.user.image?.url ? `${baseUrl}${item.user.image.url}` : null,
+                    email: item.user.email,
+                } : null,
+            }));
 
-        return {data: modifiedData, meta};
+            // Return modified data and meta (pagination info)
+            return {data: modifiedData, meta: pagination};
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+            ctx.internalServerError('An error occurred while fetching the posts');
+        }
     },
 
     async findOne(ctx) {
-        ctx.query = {
-            ...ctx.query,
-            populate: {
-                media: true,
-                user: true,
-            }
-        };
+        try {
+            const {id} = ctx.params;
 
+            const data = await strapi.entityService.findOne("api::post.post", id, {
+                populate: {
+                    media: true,
+                    user: {
+                        populate: {
+                            image: true
+                        }
+                    },
+                },
+            });
 
-        const {data} = await super.findOne(ctx);
+            const baseUrl = process.env.BASE_URL;
 
-        console.log('Raw Data:', data);
+            const modifiedData = {
+                ...data,
+                media: data.media?.map(mediaItem =>
+                    mediaItem.url ? `${baseUrl}${mediaItem.url}` : null
+                ) || [],
+                user: data.user ? {
 
-        const baseUrl = process.env.BASE_URL;
+                    username: data.user.username,
+                    image: `${baseUrl}${data.user.image.url}`,
+                    email: data.user.email,
+                } : null,
+            };
 
-        const modifiedData = {
-            ...data.attributes,
-            media: data.attributes.media?.data?.map(mediaItem =>
-                mediaItem.attributes.url ? `${baseUrl}${mediaItem.attributes.url}` : null
-            ) || [],
-            user: data.attributes.user ? data.attributes.user.data?.attributes : null,
-        };
-
-        return {data: modifiedData};
+            return {data: modifiedData};
+        } catch (error) {
+            console.error('Error fetching room:', error);
+            ctx.internalServerError('An error occurred while fetching the room');
+        }
     },
 
 
