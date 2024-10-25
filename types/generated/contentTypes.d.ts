@@ -882,12 +882,12 @@ export interface ApiPostPost extends Schema.CollectionType {
       'oneToOne',
       'api::report.report'
     >;
-    streaks: Attribute.Relation<
+    room: Attribute.Relation<'api::post.post', 'manyToOne', 'api::room.room'>;
+    streak: Attribute.Relation<
       'api::post.post',
-      'oneToMany',
+      'oneToOne',
       'api::streak.streak'
     >;
-    room: Attribute.Relation<'api::post.post', 'manyToOne', 'api::room.room'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -904,6 +904,7 @@ export interface ApiReportReport extends Schema.CollectionType {
     singularName: 'report';
     pluralName: 'reports';
     displayName: 'Report';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -924,6 +925,7 @@ export interface ApiReportReport extends Schema.CollectionType {
       'oneToMany',
       'api::vote.vote'
     >;
+    isClosed: Attribute.Boolean;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -961,6 +963,16 @@ export interface ApiRoomRoom extends Schema.CollectionType {
       'plugin::users-permissions.user'
     >;
     posts: Attribute.Relation<'api::room.room', 'oneToMany', 'api::post.post'>;
+    streaks: Attribute.Relation<
+      'api::room.room',
+      'oneToMany',
+      'api::streak.streak'
+    >;
+    room_setting: Attribute.Relation<
+      'api::room.room',
+      'oneToOne',
+      'api::room-setting.room-setting'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1016,6 +1028,7 @@ export interface ApiStreakStreak extends Schema.CollectionType {
     singularName: 'streak';
     pluralName: 'streaks';
     displayName: 'Streak';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -1026,12 +1039,17 @@ export interface ApiStreakStreak extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.user'
     >;
-    post: Attribute.Relation<
+    room: Attribute.Relation<
       'api::streak.streak',
       'manyToOne',
-      'api::post.post'
+      'api::room.room'
     >;
     accomplished: Attribute.Boolean;
+    post: Attribute.Relation<
+      'api::streak.streak',
+      'oneToOne',
+      'api::post.post'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

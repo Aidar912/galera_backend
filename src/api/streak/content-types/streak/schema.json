@@ -4,7 +4,8 @@
   "info": {
     "singularName": "streak",
     "pluralName": "streaks",
-    "displayName": "Streak"
+    "displayName": "Streak",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -17,14 +18,20 @@
       "target": "plugin::users-permissions.user",
       "inversedBy": "streaks"
     },
-    "post": {
+    "room": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "api::post.post",
+      "target": "api::room.room",
       "inversedBy": "streaks"
     },
     "accomplished": {
       "type": "boolean"
+    },
+    "post": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::post.post",
+      "inversedBy": "streak"
     }
   }
 }

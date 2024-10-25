@@ -30,6 +30,18 @@
       "relation": "oneToMany",
       "target": "api::post.post",
       "mappedBy": "room"
+    },
+    "streaks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::streak.streak",
+      "mappedBy": "room"
+    },
+    "room_setting": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::room-setting.room-setting",
+      "inversedBy": "room"
     }
   }
 }

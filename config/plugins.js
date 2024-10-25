@@ -1,7 +1,14 @@
+const streakRoutes = require('../config/swagger_custom_routes/streakRoutes.json')
+
 module.exports = () => ({});
 module.exports = ({env}) => ({
-  documentation: {
+   documentation: {
     enabled: true,
+    config: {
+      paths: {
+        ...streakRoutes
+      }
+    }
   },
 
 

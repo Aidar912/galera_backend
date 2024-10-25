@@ -1,0 +1,32 @@
+{
+  "/getUserStreak/room/{roomId}": {
+    "get": {
+      "tags": ["Streak"],
+      "summary": "Получить streak пользователя по ID комнаты",
+      "operationId": "getUserStreak",
+      "parameters": [
+        {
+          "name": "roomId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "ID комнаты"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Успешный ответ",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
