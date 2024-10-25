@@ -4,10 +4,13 @@ module.exports = {
             method: 'GET',
             path: '/posts/:postId/comments',
             handler: 'post.getCommentsByPost',
-            config: {
 
-                auth: false, // Enable authentication if needed
-            },
+        },
+        {
+            method: 'GET',
+            path: '/room/:roomId/posts/',
+            handler: 'post.getPostByRoomId',
+
         },
     ],
 };

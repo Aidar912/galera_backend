@@ -46,6 +46,58 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
         }
     },
 
+    async getPostByRoomId(ctx) {
+        try {
+            const {roomId} = ctx.params;
+
+            const page = Math.max(1, parseInt(ctx.query.page, 10) || 1);
+            const pageSize = Math.max(1, parseInt(ctx.query.pageSize, 10) || 10);
+
+
+            console.log(roomId)
+            const {results, pagination} = await strapi.entityService.findPage("api::post.post", {
+                filters: {
+                    room: {
+                        id: roomId, // Filter posts by the roomId
+                    },
+                },
+                populate: {
+                    media: true, // Populate media field
+                    user: { // Populate user and their image if exists
+                        populate: {
+                            image: true,
+                        },
+                    },
+                },
+                pagination: {
+                    page,
+                    pageSize,
+                },
+            });
+
+
+            console.log(results)
+            const baseUrl = process.env.BASE_URL;
+
+            const modifiedData = results.map((item) => ({
+                ...item,
+                media: item.media?.map(mediaItem =>
+                    mediaItem.url ? `${baseUrl}${mediaItem.url}` : null
+                ) || [],
+                user: item.user ? {
+                    username: item.user.username,
+                    image: item.user.image?.url ? `${baseUrl}${item.user.image.url}` : null,
+                    email: item.user.email,
+                } : null,
+            }));
+
+            return {data: modifiedData, meta: pagination};
+        } catch (error) {
+            console.error('Error fetching posts by room ID:', error);
+            ctx.internalServerError('An error occurred while fetching posts by room ID');
+        }
+    },
+
     async find(ctx) {
         try {
             const page = Math.max(1, parseInt(ctx.query.page, 10) || 1);
