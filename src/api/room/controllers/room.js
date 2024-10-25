@@ -75,12 +75,22 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
     },
 
     async find(ctx) {
+        const {search} = ctx.query;
+        if (search) {
+            ctx.query.filters = {
+                ...ctx.query.filters,
+                $or: [
+                    {name: {$containsi: search}},
+                ],
+            };
+        }
+
+        // Ensure the image field is populated
         ctx.query = {...ctx.query, populate: 'image'};
 
         const {data, meta} = await super.find(ctx);
 
         const baseUrl = process.env.BASE_URL;
-
         const modifiedData = data.map((item) => ({
             ...item.attributes,
             image: item.attributes.image?.data?.attributes?.url
@@ -90,6 +100,7 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
 
         return {data: modifiedData, meta};
     },
+
 
     async findOne(ctx) {
         ctx.query = {...ctx.query, populate: 'image'};
