@@ -309,22 +309,29 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
             const {id: userId} = ctx.state.user
 
 
-            // Extract and validate pagination parameters from the query string
             const page = Math.max(1, parseInt(ctx.query.page, 10) || 1);
             const pageSize = Math.max(1, parseInt(ctx.query.pageSize, 10) || 10);
 
-            // Fetch all rooms and populate specific fields, including image
-            const rooms = await strapi.entityService.findMany("api::room.room", {
+            const userRooms = await strapi.entityService.findMany("api::room.room", {
                 filters: {
                     users: {
-                        id: {
-                            $not: [userId],
-                        },
+                        id: userId,
+                    },
+                },
+                fields: ['id'],
+            });
+
+            const userRoomIds = userRooms.map((room) => room.id);
+
+            const rooms = await strapi.entityService.findMany("api::room.room", {
+                filters: {
+                    id: {
+                        $notIn: userRoomIds,
                     },
                 },
                 populate: {
                     users: {
-                        count: true, // Only get the count of users
+                        count: true,
                     },
                     room_setting: {
                         fields: ["close", "period", "isGlobal"], // Only fetch specific fields
