@@ -48,7 +48,7 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
                                 },
                             }
                         );
-                         ctx.send(updatedRoom);
+                        ctx.send(updatedRoom);
                     } else {
                         ctx.badRequest('Incorrect password')
                     }
@@ -138,13 +138,15 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
             const page = Math.max(1, parseInt(ctx.query.page, 10) || 1);
             const pageSize = Math.max(1, parseInt(ctx.query.pageSize, 10) || 10);
 
-            // Fetch all rooms and populate users
+            // Fetch all rooms and populate specific fields
             const rooms = await strapi.entityService.findMany("api::room.room", {
                 populate: {
-                    users: true,
-                    room_setting: true
-
-
+                    users: {
+                        count: true, // Only get the count of users
+                    },
+                    room_setting: {
+                        fields: ["close", "period", "isGlobal"], // Only fetch specific fields
+                    },
                 },
             });
 
@@ -174,6 +176,7 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
             ctx.internalServerError("An error occurred while fetching top rooms");
         }
     },
+
 
     async findUsersByRoom(ctx) {
         try {
