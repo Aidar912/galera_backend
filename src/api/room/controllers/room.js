@@ -318,7 +318,7 @@ module.exports = createCoreController('api::room.room', ({strapi}) => ({
                 filters: {
                     users: {
                         id: {
-                            $not: userId,
+                            $not: [userId],
                         },
                     },
                 },
