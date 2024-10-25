@@ -41,7 +41,7 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::room-setting.room-setting",
-      "inversedBy": "room"
+      "mappedBy": "room"
     }
   }
 }

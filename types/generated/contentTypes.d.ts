@@ -1002,8 +1002,8 @@ export interface ApiRoomSettingRoomSetting extends Schema.CollectionType {
     >;
     close: Attribute.Boolean;
     period: Attribute.Integer;
-    password: Attribute.Password;
     isGlobal: Attribute.Boolean;
+    password: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

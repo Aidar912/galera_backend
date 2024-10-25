@@ -24,11 +24,11 @@
     "period": {
       "type": "integer"
     },
-    "password": {
-      "type": "password"
-    },
     "isGlobal": {
       "type": "boolean"
+    },
+    "password": {
+      "type": "string"
     }
   }
 }

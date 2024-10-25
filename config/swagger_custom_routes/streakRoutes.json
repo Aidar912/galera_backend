@@ -10,7 +10,7 @@
           "in": "path",
           "required": true,
           "schema": {
-            "type": "string"
+            "type": "number"
           },
           "description": "ID комнаты"
         }
@@ -28,5 +28,210 @@
         }
       }
     }
-  }
+  },
+  "/enterRoom": {
+    "post": {
+      "tags": ["Room"],
+      "summary": "Enter a room",
+      "operationId": "enterRoom",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "roomId": {
+                  "type": "number",
+                  "description": "ID of the room to enter"
+                },
+                "password": {
+                  "type": "string",
+                  "description": "Password for the room (if required)"
+                }
+              },
+              "required": ["roomId"]
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Room entered successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Bad Request"
+        },
+        "404": {
+          "description": "Room not found"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "/leaveRoom": {
+    "post": {
+      "tags": ["Room"],
+      "summary": "Leave a room",
+      "operationId": "leaveRoom",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "roomId": {
+                  "type": "number",
+                  "description": "ID of the room to leave"
+                }
+              },
+              "required": ["roomId"]
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Room left successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Bad Request"
+        },
+        "404": {
+          "description": "Room not found"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "/topRooms": {
+    "get": {
+      "tags": ["Room"],
+      "summary": "Get top rooms",
+      "operationId": "topRooms",
+      "parameters": [
+        {
+          "name": "page",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "default": 1
+          },
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "default": 10
+          },
+          "description": "Number of items per page"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "List of top rooms",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "pagination": {
+                    "type": "object",
+                    "properties": {
+                      "page": {
+                        "type": "integer"
+                      },
+                      "pageSize": {
+                        "type": "integer"
+                      },
+                      "total": {
+                        "type": "integer"
+                      },
+                      "totalPages": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  },
+  "/findUsersByRoom/{roomId}": {
+    "get": {
+      "tags": ["Room"],
+      "summary": "Get users in a room by room ID",
+      "operationId": "findUsersByRoom",
+      "parameters": [
+        {
+          "name": "roomId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "ID of the room"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "List of users in the room",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "404": {
+          "description": "Room not found"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+
+}
+
+
 }
