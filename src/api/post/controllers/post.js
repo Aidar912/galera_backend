@@ -61,7 +61,16 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                     },
                 },
                 populate: {
-                    comments :true,
+                    report: {
+                        populate: {
+                            votes: {
+                                populate: {
+                                    user: true
+                                }
+                            }
+                        }
+                    },
+                    comments: true,
                     media: true, // Populate media field
                     user: { // Populate user and their image if exists
                         populate: {
@@ -78,20 +87,51 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
 
             const baseUrl = process.env.BASE_URL;
 
-            const modifiedData = results.map((item) => ({
-                ...item,
-                media: item.media?.map(mediaItem =>
-                    mediaItem.url ? `${baseUrl}${mediaItem.url}` : null
-                ) || [],
-                comments:item.comments.length,
-                user: item.user ? {
-                    username: item.user.username,
-                    image: item.user.image?.url ? `${baseUrl}${item.user.image.url}` : null,
-                    email: item.user.email,
-                } : null,
-            }));
+            const modifiedData = results.map((item) => {
+                // Initialize report data
+                let reportData = null;
+
+                // Check if the report exists
+                if (item.report) {
+                    // Initialize counts for approved status
+                    let like = 0;
+                    let dislike = 0;
+
+                    // Count true/false approved status if report exists
+                    if (item.report.votes && Array.isArray(item.report.votes)) {
+                        item.report.votes.forEach((vote) => {
+                            if (vote.approved === true) {
+                                like++;
+                            } else if (vote.approved === false) {
+                                dislike++;
+                            }
+                        });
+                    }
+
+                    reportData = {
+                        like,
+                        dislike,
+                    };
+                }
+
+                return {
+                    ...item,
+                    media: item.media?.map(mediaItem =>
+                        mediaItem.url ? `${baseUrl}${mediaItem.url}` : null
+                    ) || [],
+                    comments: item.comments.length,
+                    user: item.user ? {
+                        username: item.user.username,
+                        image: item.user.image?.url ? `${baseUrl}${item.user.image.url}` : null,
+                        email: item.user.email,
+                    } : null,
+                    report: reportData, // If report exists, show counts, otherwise null
+                };
+            });
 
             return {data: modifiedData, meta: pagination};
+
+
         } catch (error) {
             console.error('Error fetching posts by room ID:', error);
             ctx.internalServerError('An error occurred while fetching posts by room ID');
