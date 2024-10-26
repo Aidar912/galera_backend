@@ -55,6 +55,9 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
 
             const room = await strapi.entityService.findOne('api::room.room',roomId)
 
+            if(!room){
+                 return ctx.badRequest("Room not found");
+            }
 
             const {results, pagination} = await strapi.entityService.findPage("api::post.post", {
                 filters: {
@@ -99,6 +102,7 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                     let like = 0;
                     let dislike = 0;
                     const status = item.report.isClosed;
+                    const reportId = item.report.id
                     // Count true/false approved status if report exists
                     if (item.report.votes && Array.isArray(item.report.votes)) {
                         item.report.votes.forEach((vote) => {
@@ -111,6 +115,7 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                     }
 
                     reportData = {
+                        reportId,
                         like,
                         dislike,
                         status
