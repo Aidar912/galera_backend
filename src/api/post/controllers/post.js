@@ -53,10 +53,10 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
             const page = Math.max(1, parseInt(ctx.query.page, 10) || 1);
             const pageSize = Math.max(1, parseInt(ctx.query.pageSize, 10) || 10);
 
-            const room = await strapi.entityService.findOne('api::room.room',roomId)
+            const room = await strapi.entityService.findOne('api::room.room', roomId)
 
-            if(!room){
-                 return ctx.badRequest("Room not found");
+            if (!room) {
+                return ctx.badRequest("Room not found");
             }
 
             const {results, pagination} = await strapi.entityService.findPage("api::post.post", {
@@ -137,7 +137,7 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                 };
             });
 
-            return {data: {name:room.name,goal:room.goal,posts:modifiedData}, meta: pagination};
+            return {data: {name: room.name, goal: room.goal, posts: modifiedData}, meta: pagination};
 
 
         } catch (error) {
@@ -283,17 +283,40 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
 
             // Fetch the post by ID and populate its comments
             const post = await strapi.entityService.findOne('api::post.post', postId, {
-                populate: {comments: true},
+                populate: {
+                    comments: {
+                        populate: {
+                            user: {
+                                populate: {
+                                    image: true,
+                                },
+                            },
+                        },
+                    },
+                },
             });
 
             if (!post) {
                 return ctx.notFound('Post not found');
             }
 
-            // Send the comments of the post
-            ctx.send(post.comments);
+            const baseUrl = process.env.BASE_URL;
+
+            // Transform the comments data
+            const modifiedComments = post.comments.map(comment => ({
+                id: comment.id,
+                text: comment.text,
+                createdAt: comment.createdAt,
+                username: comment.user ? comment.user.username : null,
+                image: comment.user && comment.user.image
+                    ? `${baseUrl}${comment.user.image.url}`
+                    : null,
+            }));
+
+            // Send the modified comments
+            ctx.send({data: modifiedComments});
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching comments:', error);
             ctx.internalServerError('An error occurred while fetching comments for the post');
         }
     },
