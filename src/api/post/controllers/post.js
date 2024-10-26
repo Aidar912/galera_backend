@@ -98,7 +98,7 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                     // Initialize counts for approved status
                     let like = 0;
                     let dislike = 0;
-
+                    const status = item.report.isClosed;
                     // Count true/false approved status if report exists
                     if (item.report.votes && Array.isArray(item.report.votes)) {
                         item.report.votes.forEach((vote) => {
@@ -113,6 +113,7 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                     reportData = {
                         like,
                         dislike,
+                        status
                     };
                 }
 
