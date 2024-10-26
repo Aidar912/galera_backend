@@ -50,15 +50,34 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
         try {
             const {roomId} = ctx.params;
 
+            const {id: userId} = ctx.state.user;
+
+            const current_user_streaks = await strapi.service('api::streak.streak').find({
+                filters: {
+                    user: userId,
+                    room: roomId
+                },
+                sort: [{createdAt: 'desc'}]
+            });
+
+            let current_streak_count = 0;
+            for (const streak of current_user_streaks.results) {
+                if (!streak.accomplished) break;
+                current_streak_count++;
+            }
+
+
             const page = Math.max(1, parseInt(ctx.query.page, 10) || 1);
             const pageSize = Math.max(1, parseInt(ctx.query.pageSize, 10) || 10);
 
-            const room = await strapi.entityService.findOne('api::room.room', roomId)
+            // Fetch the room to ensure it exists
+            const room = await strapi.entityService.findOne('api::room.room', roomId);
 
             if (!room) {
                 return ctx.badRequest("Room not found");
             }
 
+            // Fetch posts related to the room
             const {results, pagination} = await strapi.entityService.findPage("api::post.post", {
                 filters: {
                     room: {
@@ -70,10 +89,10 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                         populate: {
                             votes: {
                                 populate: {
-                                    user: true
-                                }
-                            }
-                        }
+                                    user: true,
+                                },
+                            },
+                        },
                     },
                     comments: true,
                     media: true, // Populate media field
@@ -89,10 +108,10 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                 },
             });
 
-
             const baseUrl = process.env.BASE_URL;
 
-            const modifiedData = results.map((item) => {
+            // Transform the data to include streak count for each user
+            const modifiedData = await Promise.all(results.map(async (item) => {
                 // Initialize report data
                 let reportData = null;
 
@@ -102,7 +121,8 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                     let like = 0;
                     let dislike = 0;
                     const status = item.report.isClosed;
-                    const reportId = item.report.id
+                    const reportId = item.report.id;
+
                     // Count true/false approved status if report exists
                     if (item.report.votes && Array.isArray(item.report.votes)) {
                         item.report.votes.forEach((vote) => {
@@ -118,8 +138,26 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                         reportId,
                         like,
                         dislike,
-                        status
+                        status,
                     };
+                }
+
+                // Calculate the streakCount for the user if a user is present
+                let streakCount = 0;
+                if (item.user) {
+                    const streaks = await strapi.service('api::streak.streak').find({
+                        filters: {
+                            user: item.user.id,
+                            room: roomId,
+                        },
+                        sort: [{createdAt: 'desc'}],
+                    });
+
+                    // Calculate streak count based on accomplished streaks
+                    for (const streak of streaks.results) {
+                        if (!streak.accomplished) break;
+                        streakCount++;
+                    }
                 }
 
                 return {
@@ -132,13 +170,21 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                         username: item.user.username,
                         image: item.user.image?.url ? `${baseUrl}${item.user.image.url}` : null,
                         email: item.user.email,
+                        streakCount, // Include streakCount for the user
                     } : null,
                     report: reportData, // If report exists, show counts, otherwise null
                 };
-            });
+            }));
 
-            return {data: {name: room.name, goal: room.goal, posts: modifiedData}, meta: pagination};
-
+            // Return the modified data along with room details
+            return {
+                data: {
+                    name: room.name,
+                    current_user_streak: current_streak_count,
+                    goal: room.goal,
+                    posts: modifiedData
+                }, meta: pagination
+            };
 
         } catch (error) {
             console.error('Error fetching posts by room ID:', error);
@@ -302,15 +348,38 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
 
             const baseUrl = process.env.BASE_URL;
 
-            // Transform the comments data
-            const modifiedComments = post.comments.map(comment => ({
-                id: comment.id,
-                text: comment.text,
-                createdAt: comment.createdAt,
-                username: comment.user ? comment.user.username : null,
-                image: comment.user && comment.user.image
-                    ? `${baseUrl}${comment.user.image.url}`
-                    : null,
+            // Transform the comments data to include streakCount
+            const modifiedComments = await Promise.all(post.comments.map(async (comment) => {
+                // Initialize streakCount
+                let streakCount = 0;
+
+                // Calculate the streak count if a user is associated with the comment
+                if (comment.user) {
+                    const userId = comment.user.id;
+                    const streaks = await strapi.service('api::streak.streak').find({
+                        filters: {
+                            user: userId,
+                        },
+                        sort: [{createdAt: 'desc'}],
+                    });
+
+                    // Calculate streak count based on accomplished streaks
+                    for (const streak of streaks.results) {
+                        if (!streak.accomplished) break;
+                        streakCount++;
+                    }
+                }
+
+                return {
+                    id: comment.id,
+                    text: comment.text,
+                    createdAt: comment.createdAt,
+                    username: comment.user ? comment.user.username : null,
+                    image: comment.user && comment.user.image
+                        ? `${baseUrl}${comment.user.image.url}`
+                        : null,
+                    streakCount, 
+                };
             }));
 
             // Send the modified comments
@@ -320,4 +389,5 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
             ctx.internalServerError('An error occurred while fetching comments for the post');
         }
     },
+
 }));
