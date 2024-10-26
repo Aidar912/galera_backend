@@ -5439,7 +5439,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2024-10-26T00:24:04.385Z"
+    "x-generation-date": "2024-10-26T00:41:02.648Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -7251,6 +7251,9 @@
                                           }
                                         }
                                       }
+                                    },
+                                    "goal": {
+                                      "type": "string"
                                     },
                                     "createdAt": {
                                       "type": "string",
@@ -9464,6 +9467,9 @@
                                           }
                                         }
                                       }
+                                    },
+                                    "goal": {
+                                      "type": "string"
                                     },
                                     "createdAt": {
                                       "type": "string",
@@ -11841,6 +11847,9 @@
                                         }
                                       }
                                     },
+                                    "goal": {
+                                      "type": "string"
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -12361,6 +12370,9 @@
                   }
                 ],
                 "example": "string or id"
+              },
+              "goal": {
+                "type": "string"
               }
             }
           }
@@ -14083,6 +14095,9 @@
                                           }
                                         }
                                       },
+                                      "goal": {
+                                        "type": "string"
+                                      },
                                       "createdAt": {
                                         "type": "string",
                                         "format": "date-time"
@@ -14608,6 +14623,9 @@
                 }
               }
             }
+          },
+          "goal": {
+            "type": "string"
           },
           "createdAt": {
             "type": "string",
@@ -16698,6 +16716,9 @@
                           }
                         }
                       },
+                      "goal": {
+                        "type": "string"
+                      },
                       "createdAt": {
                         "type": "string",
                         "format": "date-time"
@@ -18586,6 +18607,9 @@
                                           }
                                         }
                                       }
+                                    },
+                                    "goal": {
+                                      "type": "string"
                                     },
                                     "createdAt": {
                                       "type": "string",
@@ -20766,6 +20790,9 @@
                                           }
                                         }
                                       }
+                                    },
+                                    "goal": {
+                                      "type": "string"
                                     },
                                     "createdAt": {
                                       "type": "string",

@@ -978,6 +978,7 @@ export interface ApiRoomRoom extends Schema.CollectionType {
       'api::room-setting.room-setting'
     >;
     image: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    goal: Attribute.Text;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

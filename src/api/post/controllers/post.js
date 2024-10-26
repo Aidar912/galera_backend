@@ -61,6 +61,7 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                     },
                 },
                 populate: {
+                    comments :true,
                     media: true, // Populate media field
                     user: { // Populate user and their image if exists
                         populate: {
@@ -82,6 +83,7 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                 media: item.media?.map(mediaItem =>
                     mediaItem.url ? `${baseUrl}${mediaItem.url}` : null
                 ) || [],
+                comments:item.comments.length,
                 user: item.user ? {
                     username: item.user.username,
                     image: item.user.image?.url ? `${baseUrl}${item.user.image.url}` : null,
@@ -177,7 +179,6 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
         }
     },
 
-
     async update(ctx) {
         try {
             const {id} = ctx.params;
@@ -223,6 +224,7 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
             ctx.throw(400, 'Error updating post with media');
         }
     },
+
     async getCommentsByPost(ctx) {
         try {
             const {postId} = ctx.params;
