@@ -54,7 +54,6 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
             const pageSize = Math.max(1, parseInt(ctx.query.pageSize, 10) || 10);
 
 
-            console.log(roomId)
             const {results, pagination} = await strapi.entityService.findPage("api::post.post", {
                 filters: {
                     room: {
@@ -76,7 +75,6 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
             });
 
 
-            console.log(results)
             const baseUrl = process.env.BASE_URL;
 
             const modifiedData = results.map((item) => ({
