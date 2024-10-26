@@ -53,6 +53,8 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
             const page = Math.max(1, parseInt(ctx.query.page, 10) || 1);
             const pageSize = Math.max(1, parseInt(ctx.query.pageSize, 10) || 10);
 
+            const room = await strapi.entityService.findOne('api::room.room',roomId)
+
 
             const {results, pagination} = await strapi.entityService.findPage("api::post.post", {
                 filters: {
@@ -129,7 +131,7 @@ module.exports = createCoreController('api::post.post', ({strapi}) => ({
                 };
             });
 
-            return {data: modifiedData, meta: pagination};
+            return {data: {name:room.name,goal:room.goal,posts:modifiedData}, meta: pagination};
 
 
         } catch (error) {
